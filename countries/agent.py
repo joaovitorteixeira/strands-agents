@@ -11,13 +11,7 @@ def get_country_info(country: str) -> str:
         country (str): The name of the country to get information about
 
     Returns:
-        name: dictionary containing:
-            common: str
-            official: str
-            nativeName: dictionary containing:
-                [language]: dictionary containing:
-                    common: str
-                    official: str
+        dictionary with the country information
     """
     response = requests.get(f"https://restcountries.com/v3.1/name/{country}")
     return response.json()[0]
@@ -31,24 +25,33 @@ def list_by_region(region: str) -> list:
         region (str): The name of the region to list all the countries from
 
     Returns:
-        list of dictionaries containing:
-            name: dictionary containing:
-                common: str
-                official: str
-            nativeName: dictionary containing:
-                [language]: dictionary containing:
-                    common: str
-                    official: str
+        list of dictionaries
     """
     response = requests.get(f"https://restcountries.com/v3.1/region/{region}")
     return response.json()
 
-agent = Agent(tools=[get_country_info, list_by_region])
+@tool
+def list_by_language(language: str) -> list:
+    """
+    List all the countries that have a specific language as an official language.
+
+    Args:
+        language (str): The name of the language to list all the countries that have as an official language
+
+    Returns:
+        list of dictionaries
+    """
+    response = requests.get(f"https://restcountries.com/v3.1/lang/{language}")
+    return response.json()
+
+agent = Agent(tools=[get_country_info, list_by_region, list_by_language])
 
 message = """
-I have 2 requests:
+I have 4 requests:
 
 1. What is the capital of France?
 2. List the countries in the region of South America
+3. What is the population of Brazil?
+4. List all the countries that have Spanish as an official language
 """
 agent(message)
